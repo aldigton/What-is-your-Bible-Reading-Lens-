@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Do You Really See the Bible?</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Base styles */
+        :root {
+            --color-primary: #1e40af; /* Blue-800 */
+            --color-accent: #3b82f6; /* Blue-500 */
+            --color-success: #10b981; /* Emerald-500 */
+            --color-bg: #f3f4f6;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-bg);
+        }
+        
+        /* Utility Classes */
+        .shadow-3xl {
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.4s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .animate-slideIn {
+            animation: slideIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- Container for Quiz -->
+    <div class="max-w-xl w-full bg-white p-8 md:p-10 rounded-2xl shadow-3xl text-center animate-fadeIn my-10" id="quiz-wrapper">
+
+        <!-- START SCREEN -->
+        <div id="start-screen">
+            <div class="text-6xl text-gray-400 mb-6">📚</div>
+            <h1 class="text-3xl font-extrabold text-gray-900 mb-3 leading-tight">
+                How Do You <em class="text-blue-600">Really</em> See the Bible?
+            </h1>
+            <p class="text-lg text-gray-600 mb-6">
+                This short quiz helps identify your dominant reading "lens" when engaging with Scripture.
+            </p>
+
+            <div class="flex flex-wrap justify-center gap-3 mb-8">
+                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">10 Questions</span>
+                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">4 Reading Lenses</span>
+                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">Private & Secure</span>
+            </div>
+
+            <button id="start-btn" class="w-full py-4 bg-blue-600 text-white font-bold rounded-xl text-lg shadow-lg hover:bg-blue-700 transition duration-150 transform hover:-translate-y-0.5">
+                Start the Quiz
+            </button>
+        </div>
+
+        <!-- QUIZ SCREEN -->
+        <div id="quiz-container" class="hidden text-left">
+            <div class="flex justify-between items-center mb-6">
+                <div class="text-sm font-semibold text-gray-500" id="progress-text">Question 1 of 10</div>
+                <div class="w-full ml-4 h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div id="progress-fill" class="h-full bg-blue-500 transition-all duration-300 ease-in-out" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div id="question-card" class="animate-slideIn">
+                <p class="text-xl font-semibold text-gray-800 mb-8" id="q-text">Loading...</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button class="answer-btn px-6 py-4 bg-white border-2 border-gray-200 text-gray-700 font-medium rounded-xl hover:border-blue-500 hover:text-blue-600 transition duration-150" data-choice="yes">
+                        YES, I agree
+                    </button>
+                    <button class="answer-btn px-6 py-4 bg-white border-2 border-gray-200 text-gray-700 font-medium rounded-xl hover:border-blue-500 hover:text-blue-600 transition duration-150" data-choice="no">
+                        NO, I disagree
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULT SCREEN -->
+        <div id="result-section" class="hidden text-left animate-fadeIn">
+            <div class="mb-4">
+                <span id="res-tag" class="inline-block px-4 py-1 bg-blue-100 text-blue-800 text-xs font-bold uppercase tracking-wider rounded-full">Your Reading Lens</span>
+                <h1 id="res-title" class="text-3xl font-extrabold text-gray-900 mt-2 mb-4 leading-tight">...</h1>
+            </div>
+
+            <div id="res-body" class="bg-blue-50 border-l-4 border-blue-600 p-6 rounded-xl text-gray-700 text-base">
+                ...
+            </div>
+
+            <div class="mt-8 pt-4 border-t border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">Your Responses Summary</h3>
+                <div id="answers-summary" class="space-y-3 text-sm max-h-60 overflow-y-auto pr-2">
+                    <!-- Summary items will go here -->
+                </div>
+            </div>
+
+            <button id="retake-btn" class="w-full py-3 mt-8 bg-emerald-500 text-white font-bold rounded-xl shadow-md hover:bg-emerald-600 transition duration-150">
+                Start Over
+            </button>
+        </div>
+
+        <div class="text-xs text-gray-400 mt-6">
+            Disclaimer: This quiz is for self-reflection and discussion, not for definitive theological labeling.
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            'use strict';
+
+            // --- QUIZ DATA ---
+            const questions = [
+                // TEXT LENS (Hermeneutics) - Simplified for Global/ESL
+                { id: 1, text: "The meaning of a Bible passage should be based on its original time and setting.", axis: "text" },
+                { id: 2, text: "The meaning intended by the original author must control how we interpret a passage.", axis: "text" },
+                { id: 3, text: "The way an author wrote a Bible passage (as a story, a song, or a letter) decides its main message and how we should understand it.", axis: "text" },
+                { id: 4, text: "When the Bible uses figurative language (like metaphors), its true meaning should still be determined by the original author's intended message.", axis: "text" },
+
+                // REALITY LENS (Doctrine & Science)
+                { id: 5, text: "I believe the Resurrection of Jesus was a real, physical, historical event involving His actual body.", axis: "reality_res" },
+                { id: 6, text: "The Bible may contain statements that only show what people believed about nature a long time ago.", axis: "reality_sci" },
+
+                // AUTHORITY LENS (Bible, Tradition, Revelation)
+                { id: 7, text: "The Bible is the sole written authority for Christian belief, superseding all Church Tradition and personal Revelation.", axis: "auth_bible" },
+                { id: 8, text: "Church Tradition (history, councils) has spiritual authority equal to the Bible.", axis: "auth_trad" },
+                { id: 9, text: "The Holy Spirit gives new, binding guidance or prophecy to the church today.", axis: "auth_prophecy" },
+                { id: 10, text: "God gives me personal meanings for verses that can differ from their original, intended meaning.", axis: "auth_personal" }
+            ];
+
+            const resultsData = {
+                clear: {
+                    title: "The Clear Text Lens", emoji: "📖", color: "blue",
+                    body: `
+                        <p class="font-bold mb-2">Your Focus: Context, Authorial Intent, and Clarity (The Inwards-Only Reader).</p>
+                        <p>You approach the Bible with a strong, intentional focus on sound **hermeneutics** (rules of interpretation). You view Scripture as a stable, trustworthy anchor whose primary meaning is accessible through careful historical and literary study. You are cautious about personal interpretations or external authorities overriding the plain sense of the text.</p>
+                        <p class="mt-3">Your challenge may be avoiding rigidity and applying historical context effectively to modern life.</p>
+                    `
+                },
+                living: {
+                    title: "The Living Authority Lens", emoji: "🕊️", color: "purple",
+                    body: `
+                        <p class="font-bold mb-2">Your Focus: Ongoing Revelation, Tradition, and Experience.</p>
+                        <p>While you respect the Bible, you give significant weight to external or ongoing sources of spiritual authority: Church Tradition, current prophetic words, or personal spiritual impressions. You see God’s voice not just in the finished text, but as something He continues to speak actively into the present community and to individuals.</p>
+                        <p class="mt-3">Your challenge may be maintaining proper boundaries so that personal experience or tradition does not contradict or eclipse the stable, written text.</p>
+                    `
+                },
+                modern: {
+                    title: "The Modern Context Lens", emoji: "🔬", color: "green",
+                    body: `
+                        <p class="font-bold mb-2">Your Focus: Faith Engaging Modern Knowledge.</p>
+                        <p>You seek to integrate the Bible's spiritual truth with contemporary scholarship and science. You are comfortable recognizing that the biblical authors sometimes used ancient cultural or cosmological descriptions, but you prioritize finding the enduring spiritual message.</p>
+                        <p class="mt-3">Your challenge is navigating the boundary between critical analysis and core doctrinal acceptance.</p>
+                    `
+                },
+                cultural: {
+                    title: "The Casual/Cultural Lens", emoji: "🕯️", color: "gray",
+                    body: `
+                        <p class="font-bold mb-2">Your Focus: Devotion, Inspiration, and Intuition.</p>
+                        <p>You use the Bible primarily for devotional, motivational, or cultural purposes. Your answers suggest you do not prioritize the formal rules of textual analysis (context, intent, genre). You relate to Scripture intuitively, often encountering it through songs, quoted verses, or sermons, rather than direct, in-depth study.</p>
+                        <p class="mt-3">Your challenge may be digging deeper into the original meaning to ensure your personal application is grounded in the author’s intent.</p>
+                    `
+                }
+            };
+
+            let currentQIndex = 0;
+            let answers = {};
+            let isAnimating = false;
+
+            // Function to safely set HTML content
+            function setSafeHTML(element, htmlContent) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = htmlContent;
+                // Basic sanitation to remove active scripts/forms/styles
+                tempDiv.querySelectorAll('script, iframe, object, embed, form, style, link, meta').forEach(el => el.remove());
+                element.innerHTML = tempDiv.innerHTML;
+            }
+
+            // --- UI CONTROL ---
+            function init() {
+                const startBtn = document.getElementById('start-btn');
+                const retakeBtn = document.getElementById('retake-btn');
+                const answerBtns = document.querySelectorAll('.answer-btn');
+
+                startBtn.addEventListener('click', startQuiz);
+                retakeBtn.addEventListener('click', restartQuiz);
+                answerBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        if (!isAnimating) {
+                            const choice = btn.getAttribute('data-choice');
+                            handleAnswer(choice);
+                        }
+                    });
+                });
+                // Ensure initial state is correct for the first question load
+                document.addEventListener('DOMContentLoaded', () => {
+                    const card = document.getElementById('question-card');
+                    card.classList.remove('animate-slideIn');
+                    void card.offsetWidth; // Trigger reflow
+                    card.classList.add('animate-slideIn');
+                });
+            }
+
+            function startQuiz() {
+                document.getElementById('start-screen').classList.add('hidden');
+                document.getElementById('quiz-container').classList.remove('hidden');
+                currentQIndex = 0;
+                answers = {};
+                renderQuestion();
+            }
+
+            function restartQuiz() {
+                document.getElementById('result-section').classList.add('hidden');
+                document.getElementById('start-screen').classList.remove('hidden');
+                window.scrollTo(0, 0);
+                currentQIndex = 0;
+                answers = {};
+            }
+
+            function renderQuestion() {
+                if (currentQIndex >= questions.length) {
+                    calculateResult();
+                    return;
+                }
+
+                const q = questions[currentQIndex];
+                const progressPercent = ((currentQIndex) / questions.length) * 100;
+
+                // Update progress bar and text
+                document.getElementById('progress-fill').style.width = progressPercent + '%';
+                document.getElementById('progress-text').textContent =
+                    `Question ${currentQIndex + 1} of ${questions.length}`;
+
+                // Animate card slide-in
+                const card = document.getElementById('question-card');
+                isAnimating = true;
+                card.classList.remove('animate-slideIn');
+                setTimeout(() => {
+                    card.classList.add('animate-slideIn');
+                    document.getElementById('q-text').textContent = q.text;
+                    isAnimating = false;
+                }, 10);
+            }
+            
+            // Final progress bar update
+            function finalizeProgress() {
+                 document.getElementById('progress-fill').style.width = '100%';
+                 document.getElementById('progress-text').textContent = 'Quiz Complete';
+            }
+
+
+            function handleAnswer(choice) {
+                answers[questions[currentQIndex].id] = choice;
+                
+                // --- EARLY EXIT LOGIC (AFTER Q5) ---
+                if (currentQIndex === 4 && choice === 'no') { // Check if Q5 was answered NO
+                    // Skip remaining questions and go straight to results
+                    currentQIndex = questions.length; 
+                    // To ensure the Cultural Affinity wins, we explicitly set the remaining Auth questions to NO
+                    // This is only for the summary display, the core logic relies on the Q5 NO penalty.
+                    for (let i = 5; i < 10; i++) {
+                        answers[questions[i].id] = 'no';
+                    }
+                    finalizeProgress();
+                    calculateResult();
+                    return;
+                }
+                // --- END EARLY EXIT LOGIC ---
+
+                currentQIndex++;
+                if (currentQIndex === questions.length) {
+                    finalizeProgress();
+                }
+                renderQuestion();
+            }
+
+            // --- SCORING LOGIC (Final Purity Logic V4) ---
+
+            function calculateResult() {
+                let textScore = 0; // Q1-Q4 (Max 4)
+                let authScore = 0; // Q8, Q9, Q10 (Max 3)
+                
+                // Helper to check if a question was answered 'yes'
+                const isYes = (id) => answers[id] === 'yes';
+                const isNo = (id) => answers[id] === 'no';
+
+                // 1. Calculate base scores
+                questions.forEach(q => {
+                    if (isYes(q.id)) {
+                        switch (q.axis) {
+                            case 'text':
+                                textScore++;
+                                break;
+                            case 'auth_trad':
+                            case 'auth_prophecy':
+                            case 'auth_personal':
+                                authScore++;
+                                break;
+                        }
+                    }
+                });
+                
+                // Check for Early Exit state where Q5 was answered NO
+                const resurrectionDenied = isNo(5) && currentQIndex >= 5;
+
+                // --- 2. Calculate the four affinity scores (V6 Logic) ---
+                
+                // Clear Text: Rewards Purity (Q7 YES) and Text score, aggressively penalized by AuthScore AND Q5 NO
+                // Formula: (3 * Text Score) + (5 * Q7 YES) - (3 * Auth Score) - (12 * Q5 NO)
+                let clearAffinity = (3 * textScore) + (5 * (isYes(7) ? 1 : 0)) - (3 * authScore);
+                if (resurrectionDenied) {
+                    clearAffinity -= 12; // Severe penalty for denying core doctrine (Q5 NO)
+                }
+                
+                // Living: Pure measure of external authority (Q8, Q9, Q10)
+                // Formula: Auth Score * 3
+                let livingAffinity = authScore * 3;
+                
+                // Modern: Text score combined with openness to science (Q6 YES) and doctrine (Q5 YES)
+                // Formula: (2 * Text Score) + (3 * Q6 YES) + (2 * Q5 YES) - (8 * Q5 NO)
+                let modernAffinity = (2 * textScore) + (3 * (isYes(6) ? 1 : 0)) + (2 * (isYes(5) ? 1 : 0));
+                if (resurrectionDenied) {
+                    modernAffinity -= 8; // Penalty for denying core doctrine (Q5 NO)
+                }
+                
+                // Cultural: Inverse of Text Score + Skepticism Bonus
+                // Formula: (4 - Text Score) * 3 + (8 * Q5 NO)
+                let culturalAffinity = (4 - textScore) * 3;
+                if (resurrectionDenied) {
+                    culturalAffinity += 8; // Boost for denying core doctrine (Q5 NO)
+                }
+                
+                // 4. Final Affinity Object
+                const affinityScores = {
+                    clear: clearAffinity,
+                    living: livingAffinity,
+                    modern: modernAffinity,
+                    cultural: culturalAffinity
+                };
+
+
+                // 5. Determine the outcome based on the highest affinity score (Winner Takes All)
+                let outcomeKey = 'clear';
+                let maxScore = -Infinity;
+                // Tie-breaker hierarchy (Most Distinctive to Least): 1. Living, 2. Modern, 3. Clear, 4. Cultural
+                // The keys are listed in tie-breaker order.
+                const keys = ['living', 'modern', 'clear', 'cultural']; 
+                
+                // Find the maximum score, using the order of the 'keys' array as the tie-breaker
+                for (const key of keys) {
+                    if (affinityScores[key] > maxScore) {
+                        maxScore = affinityScores[key];
+                        outcomeKey = key;
+                    } 
+                    // If scores are equal, the one encountered first (higher priority in `keys`) wins.
+                }
+                
+                displayResult(outcomeKey);
+            }
+
+            function displayResult(key) {
+                document.getElementById('quiz-container').classList.add('hidden');
+                document.getElementById('result-section').classList.remove('hidden');
+                window.scrollTo(0, 0);
+
+                const summaryEl = document.getElementById('answers-summary');
+                let recapHTML = '';
+
+                questions.forEach((q, index) => {
+                    const val = answers[q.id] || '-';
+                    const displayVal = val.toUpperCase();
+                    // Determine if the question was answered (if not, show "SKIPPED")
+                    const isAnswered = answers[q.id] !== undefined && answers[q.id] !== '-';
+                    const choiceColor = isAnswered ? (val === 'yes' ? 'text-blue-600 font-semibold' : 'text-gray-500') : 'text-red-500 font-semibold';
+                    const displayOutput = isAnswered ? displayVal : 'SKIPPED';
+
+                    recapHTML += `
+                        <div class="flex justify-between items-start border-b border-gray-100 pb-2">
+                            <span class="text-gray-700 w-3/4 pr-2">${index + 1}. ${q.text}</span>
+                            <span class="${choiceColor} text-right w-1/4">${displayOutput}</span>
+                        </div>
+                    `;
+                });
+
+                setSafeHTML(summaryEl, recapHTML);
+
+                const data = resultsData[key];
+                
+                // Set the result title, tag, and body content
+                document.getElementById('res-title').textContent = data.title;
+                setSafeHTML(document.getElementById('res-body'), data.body);
+
+                // Update colors based on lens (UI Enhancement)
+                const tagEl = document.getElementById('res-tag');
+                const bodyEl = document.getElementById('res-body');
+
+                // Reset classes
+                tagEl.className = 'inline-block px-4 py-1 text-xs font-bold uppercase tracking-wider rounded-full';
+                bodyEl.className = 'p-6 rounded-xl text-gray-700 text-base border-l-4';
+
+                // Apply new color classes
+                let tagColor, borderColor;
+                switch (data.color) {
+                    case 'blue': tagColor = 'bg-blue-100 text-blue-800'; borderColor = 'border-blue-600 bg-blue-50'; break;
+                    case 'purple': tagColor = 'bg-purple-purple-100 text-purple-800'; borderColor = 'border-purple-600 bg-purple-50'; break;
+                    case 'green': tagColor = 'bg-green-100 text-green-800'; borderColor = 'border-green-600 bg-green-50'; break;
+                    case 'gray': tagColor = 'bg-gray-100 text-gray-800'; borderColor = 'border-gray-600 bg-gray-50'; break;
+                }
+                
+                tagEl.textContent = `${data.emoji} Your Reading Lens`;
+                tagEl.classList.add(...tagColor.split(' '));
+                bodyEl.classList.add(...borderColor.split(' '));
+            }
+
+            // kick things off when the DOM is ready
+            document.addEventListener('DOMContentLoaded', init);
+        })();
+    </script>
+</body>
+</html>
