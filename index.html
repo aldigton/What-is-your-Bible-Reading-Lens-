@@ -19,6 +19,7 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--color-bg);
+            /* Ensure text contrast for accessibility on body */
             color: #1f2937; 
         }
         
@@ -56,11 +57,11 @@
         
         /* Scrollbar for long lists of traditions */
         .matches-scroll {
-            max-height: 200px;
+            max-height: 240px;
             overflow-y: auto;
             scrollbar-width: thin;
             scrollbar-color: #cbd5e1 #f1f5f9;
-            padding-right: 8px;
+            padding-right: 12px;
         }
         .matches-scroll::-webkit-scrollbar {
             width: 6px;
@@ -72,89 +73,112 @@
             background-color: #cbd5e1;
             border-radius: 10px;
         }
+        
+        .matches-group-title {
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 14px;
+            margin-bottom: 6px;
+            color: #64748b; /* Slate-500 */
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 2px;
+        }
+        .matches-group-title:first-child { margin-top: 0; }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
 
     <!-- Container for Quiz -->
-    <div role="main" class="max-w-2xl w-full bg-white p-8 md:p-10 rounded-2xl shadow-3xl text-center animate-fadeIn my-10" id="quiz-wrapper">
+    <div role="main" class="max-w-2xl w-full bg-white p-8 md:p-10 rounded-2xl shadow-3xl text-center animate-fadeIn my-10 flex flex-col" id="quiz-wrapper">
 
-        <!-- START SCREEN -->
-        <div id="start-screen" aria-live="polite">
-            <div class="text-6xl text-gray-400 mb-6" aria-hidden="true">📚</div>
-            <h1 class="text-3xl font-extrabold text-gray-900 mb-3 leading-tight">
-                How Do You <em class="text-blue-600">Really</em> See the Bible?
-            </h1>
-            <p class="text-lg text-gray-700 mb-6">
-                This short quiz helps identify the "lens" you instinctively use when reading and interpreting Scripture.
-            </p>
+        <!-- Dynamic Content Area -->
+        <div class="flex-grow">
+            <!-- START SCREEN -->
+            <div id="start-screen" aria-live="polite">
+                <div class="text-6xl text-gray-400 mb-6" aria-hidden="true">📚</div>
+                <h1 class="text-3xl font-extrabold text-gray-900 mb-3 leading-tight">
+                    How Do You <em class="text-blue-600">Really</em> See the Bible?
+                </h1>
+                <p class="text-lg text-gray-700 mb-6">
+                    This short quiz helps identify the "lens" you instinctively use when reading and interpreting Scripture.
+                </p>
 
-            <div class="flex flex-wrap justify-center gap-3 mb-8">
-                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">10 Questions</span>
-                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">5 Reading Lenses</span>
-                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">Private & Secure</span>
+                <div class="flex flex-wrap justify-center gap-3 mb-8">
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">10 Questions</span>
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">5 Reading Lenses</span>
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">Private & Secure</span>
+                </div>
+
+                <button id="start-btn" class="w-full py-4 bg-blue-600 text-white font-bold rounded-xl text-lg shadow-lg hover:bg-blue-700 transition duration-150 transform hover:-translate-y-0.5" aria-label="Start the Bible reading style quiz">
+                    Start the Quiz
+                </button>
             </div>
 
-            <button id="start-btn" class="w-full py-4 bg-blue-600 text-white font-bold rounded-xl text-lg shadow-lg hover:bg-blue-700 transition duration-150 transform hover:-translate-y-0.5" aria-label="Start the Bible reading style quiz">
-                Start the Quiz
-            </button>
-        </div>
+            <!-- QUIZ SCREEN -->
+            <div id="quiz-container" class="hidden text-left" aria-live="polite" aria-relevant="all">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="text-sm font-semibold text-gray-700" id="progress-text" aria-live="off">Question 1 of 10</div>
+                    <div class="w-full ml-4 h-2 bg-gray-200 rounded-full overflow-hidden" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="10">
+                        <div id="progress-fill" class="h-full bg-blue-500 transition-all duration-300 ease-in-out" style="width: 0%"></div>
+                    </div>
+                </div>
 
-        <!-- QUIZ SCREEN -->
-        <div id="quiz-container" class="hidden text-left" aria-live="polite" aria-relevant="all">
-            <div class="flex justify-between items-center mb-6">
-                <div class="text-sm font-semibold text-gray-700" id="progress-text" aria-live="off">Question 1 of 10</div>
-                <div class="w-full ml-4 h-2 bg-gray-200 rounded-full overflow-hidden" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="10">
-                    <div id="progress-fill" class="h-full bg-blue-500 transition-all duration-300 ease-in-out" style="width: 0%"></div>
+                <div id="question-card" class="animate-slideIn">
+                    <p class="text-xl font-semibold text-gray-800 mb-8" id="q-text" role="status">Loading...</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button class="answer-btn px-6 py-4 bg-white border-2 border-gray-200 text-gray-700 font-medium rounded-xl hover:border-blue-500 hover:text-blue-600 transition duration-150" data-choice="yes" role="button" aria-label="Answer yes to the current question">
+                            YES, I agree
+                        </button>
+                        <button class="answer-btn px-6 py-4 bg-white border-2 border-gray-200 text-gray-700 font-medium rounded-xl hover:border-blue-500 hover:text-blue-600 transition duration-150" data-choice="no" role="button" aria-label="Answer no to the current question">
+                            NO, I disagree
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div id="question-card" class="animate-slideIn">
-                <p class="text-xl font-semibold text-gray-800 mb-8" id="q-text" role="status">Loading...</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <button class="answer-btn px-6 py-4 bg-white border-2 border-gray-200 text-gray-700 font-medium rounded-xl hover:border-blue-500 hover:text-blue-600 transition duration-150" data-choice="yes" role="button" aria-label="Answer yes to the current question">
-                        YES, I agree
-                    </button>
-                    <button class="answer-btn px-6 py-4 bg-white border-2 border-gray-200 text-gray-700 font-medium rounded-xl hover:border-blue-500 hover:text-blue-600 transition duration-150" data-choice="no" role="button" aria-label="Answer no to the current question">
-                        NO, I disagree
-                    </button>
+            <!-- RESULT SCREEN -->
+            <div id="result-section" class="hidden text-left animate-fadeIn" aria-live="polite">
+                <div class="mb-4">
+                    <span id="res-tag" class="inline-block px-4 py-1 bg-blue-100 text-blue-800 text-xs font-bold uppercase tracking-wider rounded-full">Your Reading Lens</span>
+                    <h1 id="res-title" class="text-3xl font-extrabold text-gray-900 mt-2 mb-4 leading-tight">...</h1>
                 </div>
-            </div>
-        </div>
 
-        <!-- RESULT SCREEN -->
-        <div id="result-section" class="hidden text-left animate-fadeIn" aria-live="polite">
-            <div class="mb-4">
-                <span id="res-tag" class="inline-block px-4 py-1 bg-blue-100 text-blue-800 text-xs font-bold uppercase tracking-wider rounded-full">Your Reading Lens</span>
-                <h1 id="res-title" class="text-3xl font-extrabold text-gray-900 mt-2 mb-4 leading-tight">...</h1>
-            </div>
-
-            <div id="res-body" class="bg-blue-50 border-l-4 border-blue-600 p-6 rounded-xl text-gray-700 text-base">
-                ...
-            </div>
-
-            <div class="mt-8 pt-4 border-t border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-800 mb-3">Your Responses Summary</h3>
-                <div id="answers-summary" class="space-y-3 text-sm max-h-60 overflow-y-auto pr-2" tabindex="0">
-                    <!-- Summary items will go here -->
+                <div id="res-body" class="bg-blue-50 border-l-4 border-blue-600 p-6 rounded-xl text-gray-700 text-base">
+                    ...
                 </div>
+
+                <div class="mt-8 pt-4 border-t border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">Your Responses Summary</h3>
+                    <div id="answers-summary" class="space-y-3 text-sm max-h-60 overflow-y-auto pr-2" tabindex="0">
+                        <!-- Summary items will go here -->
+                    </div>
+                </div>
+
+                <button id="retake-btn" class="w-full py-3 mt-8 bg-emerald-500 text-white font-bold rounded-xl shadow-md hover:bg-emerald-600 transition duration-150" aria-label="Start the quiz over again">
+                    Start Over
+                </button>
             </div>
-
-            <button id="retake-btn" class="w-full py-3 mt-8 bg-emerald-500 text-white font-bold rounded-xl shadow-md hover:bg-emerald-600 transition duration-150" aria-label="Start the quiz over again">
-                Start Over
-            </button>
         </div>
 
-        <div class="text-xs text-gray-500 mt-6">
-            Disclaimer: This quiz is for self-reflection and discussion, not for definitive theological labeling.
+        <!-- FOOTER SECTION (Visible on all pages) -->
+        <div class="mt-8 pt-6 border-t border-gray-100">
+            <div class="text-xs text-gray-500 mb-2">
+                Disclaimer: This quiz is for self-reflection and discussion, not for definitive theological labeling.
+            </div>
+            <div class="text-xs text-gray-400 font-medium">
+                Created by Aldigton @2025. None of the data is stored anywhere or tracked.
+            </div>
         </div>
+
     </div>
 
     <script>
         (function () {
             'use strict';
             
-            console.log("Quiz Logic: V21 (Clean UI) Loaded");
+            console.log("Quiz Logic: V24 (Footer Added) Loaded");
 
             try {
                 // --- QUIZ DATA ---
@@ -186,14 +210,29 @@
                             <div class="bg-white bg-opacity-60 p-4 rounded-lg border border-blue-200 mb-3 text-left">
                                 <p class="text-xs font-bold text-blue-800 uppercase tracking-wide mb-2">Real-World Matches</p>
                                 <div class="matches-scroll text-xs leading-relaxed text-gray-700">
-                                    <ul class="list-disc pl-4 space-y-1">
-                                        <li><strong>Reformed/Presbyterian:</strong> Strict Calvinism, Puritan, Covenant Theology, Neo-Calvinism (Kuyper).</li>
-                                        <li><strong>Baptist:</strong> Baptist Distinctives, Fundamentalism, Reformed Baptist.</li>
+                                    <div class="matches-group-title">Reformed & Lutheran</div>
+                                    <ul class="list-disc pl-4 space-y-1 mb-2">
+                                        <li><strong>Reformed/Presbyterian:</strong> Strict Calvinism, Puritan Theology, Covenant Theology, Neo-Calvinism (Kuyper).</li>
                                         <li><strong>Lutheran:</strong> Confessional Lutheranism, Scholastic Lutheranism.</li>
-                                        <li><strong>Anabaptist:</strong> Radical Reformation, Mennonite, Waldensians.</li>
-                                        <li><strong>Evangelical:</strong> Conservative Evangelicalism, Dispensationalism (Plymouth Brethren), Stone-Campbell Movement.</li>
-                                        <li><strong>Restorationist:</strong> Adventist, Jehovah's Witnesses, Christadelphians.</li>
-                                        <li><strong>Theology:</strong> Biblical Inerrancy, Open Theism.</li>
+                                        <li><strong>Waldensian:</strong> Reformed-aligned Waldensian (Modern).</li>
+                                    </ul>
+                                    <div class="matches-group-title">Evangelical & Baptist</div>
+                                    <ul class="list-disc pl-4 space-y-1 mb-2">
+                                        <li><strong>Baptist:</strong> Baptist Distinctives, Fundamentalism, Reformed Baptist.</li>
+                                        <li><strong>Evangelical:</strong> Conservative Evangelicalism, Dispensationalism (Plymouth Brethren).</li>
+                                        <li><strong>Non-Denominational:</strong> Independent Bible Churches (Word-centered).</li>
+                                        <li><strong>Anabaptist:</strong> Radical Reformation, Mennonite (Biblicist).</li>
+                                    </ul>
+                                    <div class="matches-group-title">Restorationist / Non-Creedal</div>
+                                    <ul class="list-disc pl-4 space-y-1 mb-2">
+                                        <li><strong>Stone-Campbell Movement:</strong> "No Creed but Christ".</li>
+                                        <li><strong>Adventist:</strong> Historicist Prophetic Interpretation.</li>
+                                        <li><strong>Other:</strong> Jehovah's Witnesses, Christadelphians.</li>
+                                    </ul>
+                                    <div class="matches-group-title">Theological Schools</div>
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>Biblical Inerrancy:</strong> Chicago Statement.</li>
+                                        <li><strong>Open Theism:</strong> (Biblicist Argumentation).</li>
                                     </ul>
                                 </div>
                             </div>
@@ -208,13 +247,35 @@
                             <div class="bg-white bg-opacity-60 p-4 rounded-lg border border-purple-200 mb-3 text-left">
                                 <p class="text-xs font-bold text-purple-800 uppercase tracking-wide mb-2">Real-World Matches</p>
                                 <div class="matches-scroll text-xs leading-relaxed text-gray-700">
+                                    <div class="matches-group-title">Catholic Tradition</div>
+                                    <ul class="list-disc pl-4 space-y-1 mb-2">
+                                        <li><strong>Schools:</strong> Patristic (Latin), Thomism, Scotism, Molinism, Jesuit/Suárezian, Augustinian.</li>
+                                        <li><strong>Modern:</strong> Ressourcement, Nouvelle Théologie, Catholic Personalism, Charismatic Renewal.</li>
+                                        <li><strong>Other:</strong> Old Catholic (Utrecht), Jansenism.</li>
+                                    </ul>
+                                    <div class="matches-group-title">Orthodox & Eastern</div>
+                                    <ul class="list-disc pl-4 space-y-1 mb-2">
+                                        <li><strong>Eastern Orthodox:</strong> Patristic Greek, Cappadocian, Byzantine, Palamite/Hesychast, Neo-Patristic, Russian Religious Philosophy.</li>
+                                        <li><strong>Oriental Orthodox:</strong> Syriac, Armenian, Coptic, Ethiopian Tewahedo.</li>
+                                        <li><strong>Church of the East:</strong> East Syriac, Antiochene.</li>
+                                        <li><strong>Groups:</strong> Old Believers, True Orthodox.</li>
+                                    </ul>
+                                    <div class="matches-group-title">Anglican & Methodist</div>
+                                    <ul class="list-disc pl-4 space-y-1 mb-2">
+                                        <li><strong>Anglican:</strong> Anglo-Catholic (Tractarian), Patristic High-Church, Via Media.</li>
+                                        <li><strong>Methodist:</strong> Wesleyan Arminianism, Holiness Movement, Entire Sanctification.</li>
+                                    </ul>
+                                    <div class="matches-group-title">Pentecostal & Charismatic</div>
+                                    <ul class="list-disc pl-4 space-y-1 mb-2">
+                                        <li><strong>Global:</strong> Classical Pentecostal, Assemblies of God, Foursquare.</li>
+                                        <li><strong>Modern:</strong> Third-Wave, Apostolic/Prophetic Networks (NAR), Neo-Pentecostal.</li>
+                                        <li><strong>Regional:</strong> African Initiated Churches (Aladura, Zionist), Latin American Pentecostalism.</li>
+                                    </ul>
+                                    <div class="matches-group-title">Experiential / Other</div>
                                     <ul class="list-disc pl-4 space-y-1">
-                                        <li><strong>Catholic:</strong> Patristic, Thomist, Jesuit, Augustinian, Ressourcement, Nouvelle Théologie, Charismatic Renewal.</li>
-                                        <li><strong>Orthodox:</strong> Eastern Orthodox, Oriental Orthodox, Church of the East, Palamite, Neo-Patristic.</li>
-                                        <li><strong>Anglican:</strong> Anglo-Catholic, Patristic High-Church, Via Media.</li>
-                                        <li><strong>Methodist/Wesleyan:</strong> Wesleyan Arminianism, Holiness Movement.</li>
-                                        <li><strong>Pentecostal/Charismatic:</strong> Assemblies of God, Third-Wave, Apostolic Networks, African Initiated Churches.</li>
-                                        <li><strong>Other:</strong> Quakers, Moravians, Latter-day Saints.</li>
+                                        <li><strong>Quakers:</strong> Inner Light Theology.</li>
+                                        <li><strong>Moravians:</strong> Pietist "Heart Religion".</li>
+                                        <li><strong>Restorationist:</strong> Latter-day Saint Movement (Living Prophets).</li>
                                     </ul>
                                 </div>
                             </div>
@@ -229,11 +290,24 @@
                             <div class="bg-white bg-opacity-60 p-4 rounded-lg border border-green-200 mb-3 text-left">
                                 <p class="text-xs font-bold text-green-800 uppercase tracking-wide mb-2">Real-World Matches</p>
                                 <div class="matches-scroll text-xs leading-relaxed text-gray-700">
+                                    <div class="matches-group-title">Mainline Protestant</div>
+                                    <ul class="list-disc pl-4 space-y-1 mb-2">
+                                        <li><strong>Traditions:</strong> Liberal wings of Anglicanism, Lutheranism, Methodism, Presbyterianism (PCUSA).</li>
+                                        <li><strong>Theology:</strong> Modern Lutheran (Bonhoeffer), Anglican Liberal.</li>
+                                    </ul>
+                                    <div class="matches-group-title">Academic & Philosophical</div>
+                                    <ul class="list-disc pl-4 space-y-1 mb-2">
+                                        <li><strong>Schools:</strong> Neo-Orthodoxy (Barthian), Critical Realism, "BioLogos" Evangelicals.</li>
+                                        <li><strong>Movements:</strong> Process Theology, Emergent/Progressive, Post-Evangelical.</li>
+                                    </ul>
+                                    <div class="matches-group-title">Contextual Theologies</div>
+                                    <ul class="list-disc pl-4 space-y-1 mb-2">
+                                        <li><strong>Social Justice:</strong> Black Liberation, Dalit Theology, Latin American Liberation.</li>
+                                        <li><strong>Identity:</strong> Feminist/Womanist, Queer/Body Theology, Postcolonial (Asian/African).</li>
+                                    </ul>
+                                    <div class="matches-group-title">Ecumenical</div>
                                     <ul class="list-disc pl-4 space-y-1">
-                                        <li><strong>Mainline Protestant:</strong> Liberal wings of Anglicanism, Lutheranism, Methodism.</li>
-                                        <li><strong>Academic:</strong> Neo-Orthodoxy (Barth), Critical Realism, "BioLogos" Evangelicals.</li>
-                                        <li><strong>Contextual Theologies:</strong> Black Liberation, Feminist/Womanist, Postcolonial, Asian Contextual.</li>
-                                        <li><strong>Philosophy:</strong> Process Theology, Emergent/Progressive, Ecumenical Movements.</li>
+                                        <li><strong>Dialogue:</strong> Ecumenical Theology, Interfaith Dialogue, Liberal Catholic.</li>
                                     </ul>
                                 </div>
                             </div>
