@@ -19,7 +19,6 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--color-bg);
-            /* Ensure text contrast for accessibility on body */
             color: #1f2937; 
         }
         
@@ -54,12 +53,31 @@
         .answer-btn {
              color: #374151; /* Gray-700 */
         }
+        
+        /* Scrollbar for long lists of traditions */
+        .matches-scroll {
+            max-height: 200px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f1f5f9;
+            padding-right: 8px;
+        }
+        .matches-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .matches-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .matches-scroll::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
 
     <!-- Container for Quiz -->
-    <div role="main" class="max-w-xl w-full bg-white p-8 md:p-10 rounded-2xl shadow-3xl text-center animate-fadeIn my-10" id="quiz-wrapper">
+    <div role="main" class="max-w-2xl w-full bg-white p-8 md:p-10 rounded-2xl shadow-3xl text-center animate-fadeIn my-10" id="quiz-wrapper">
 
         <!-- START SCREEN -->
         <div id="start-screen" aria-live="polite">
@@ -136,25 +154,26 @@
         (function () {
             'use strict';
             
-            console.log("Quiz Logic: V16 (Gap Fixes) Loaded");
+            console.log("Quiz Logic: V21 (Clean UI) Loaded");
 
             try {
+                // --- QUIZ DATA ---
                 const questions = [
-                    // TEXT LENS
+                    // TEXT LENS (Hermeneutics)
                     { id: 1, text: "The meaning of a Bible passage should be based on its original time and setting.", axis: "text" },
-                    { id: 2, text: "The meaning intended by the original author must control how we interpret a passage.", axis: "text" },
-                    { id: 3, text: "The way an author wrote a Bible passage (as a story, a song, or a letter) decides its main message and how we should understand it.", axis: "text" },
-                    { id: 4, text: "When the Bible uses figurative language (like metaphors), its true meaning should still be determined by the original author's intended message.", axis: "text" },
+                    { id: 2, text: "The meaning intended by the original biblical writer for his audience must control how we should understand the text.", axis: "text" },
+                    { id: 3, text: "The way a Biblical writer wrote a Bible passage (as a story, a song, or a letter) decides its meaning and how we should understand it.", axis: "text" },
+                    { id: 4, text: "When the Biblical writer uses figurative language (like metaphors), the passage's true meaning should still be determined by what the writer's intention was for his audience.", axis: "text" },
 
-                    // REALITY LENS
-                    { id: 5, text: "I believe the Resurrection of Jesus was a real, physical, historical event involving His actual body.", axis: "reality_res" },
-                    { id: 6, text: "The Bible may contain statements that only show what people believed about nature a long time ago.", axis: "reality_sci" },
+                    // REALITY LENS (Doctrine & Science)
+                    { id: 5, text: "I believe the Resurrection of Jesus was a real, physical event in history, involving His actual body.", axis: "reality_res" },
+                    { id: 6, text: "The Bible may contain statements that only show what people believed about nature, creation, and science during the writer's time and setting.", axis: "reality_sci" },
 
-                    // AUTHORITY LENS
-                    { id: 7, text: "Scripture is the only trustworthy source for doctrine and practice, and no other human authority can add to it.", axis: "auth_bible" },
+                    // AUTHORITY LENS (Bible, Tradition, Revelation)
+                    { id: 7, text: "The Bible is the only final authority for Christian faith and practice, standing above all Church Tradition and prophecy.", axis: "auth_bible" },
                     { id: 8, text: "Church Tradition (history, councils) helps fully interpret the Bible and carries equal authority for our faith.", axis: "auth_trad" },
-                    { id: 9, text: "The Holy Spirit gives new, binding guidance or prophecy to the church today.", axis: "auth_prophecy" },
-                    { id: 10, text: "God gives me personal meanings for verses that can differ from their original, intended meaning.", axis: "auth_personal" }
+                    { id: 9, text: "The Holy Spirit gives new information, teachings, or prophecies to the church today through teachers, prophets, and apostles.", axis: "auth_prophecy" },
+                    { id: 10, text: "As a Christian, I understand new meaning for every verse and passage through the help of the Holy Spirit God.", axis: "auth_personal" }
                 ];
 
                 const resultsData = {
@@ -162,27 +181,66 @@
                         title: "The Clear Text Lens", emoji: "📖", color: "blue",
                         body: `
                             <p class="font-bold mb-2">You view Scripture through a <strong>Microscope</strong>.</p>
-                            <p>You scored high on prioritizing **Textual Rigor** and **Scripture Alone**. You see the Bible as a stable, self-interpreting anchor whose meaning is fixed by the author. Your method is the most conservative and rigorous in seeking the historical, plain meaning of the text.</p>
-                            <p class="mt-3 font-semibold">Your Challenge: Rigidity. Be sure your focus on the "inwards" text does not prevent real-world application or create unnecessary conflict with established scientific/historical facts.</p>
+                            <p class="mb-3">You scored high on prioritizing **Textual Rigor** and **Scripture Alone**. You see the Bible as a stable, self-interpreting anchor whose meaning is fixed by the author. Your method is the most conservative and rigorous in seeking the historical, plain meaning of the text.</p>
+                            
+                            <div class="bg-white bg-opacity-60 p-4 rounded-lg border border-blue-200 mb-3 text-left">
+                                <p class="text-xs font-bold text-blue-800 uppercase tracking-wide mb-2">Real-World Matches</p>
+                                <div class="matches-scroll text-xs leading-relaxed text-gray-700">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>Reformed/Presbyterian:</strong> Strict Calvinism, Puritan, Covenant Theology, Neo-Calvinism (Kuyper).</li>
+                                        <li><strong>Baptist:</strong> Baptist Distinctives, Fundamentalism, Reformed Baptist.</li>
+                                        <li><strong>Lutheran:</strong> Confessional Lutheranism, Scholastic Lutheranism.</li>
+                                        <li><strong>Anabaptist:</strong> Radical Reformation, Mennonite, Waldensians.</li>
+                                        <li><strong>Evangelical:</strong> Conservative Evangelicalism, Dispensationalism (Plymouth Brethren), Stone-Campbell Movement.</li>
+                                        <li><strong>Restorationist:</strong> Adventist, Jehovah's Witnesses, Christadelphians.</li>
+                                        <li><strong>Theology:</strong> Biblical Inerrancy, Open Theism.</li>
+                                    </ul>
+                                </div>
+                            </div>
                         `
                     },
                     living: {
-                        title: "The Living Lens", emoji: "🕊️", color: "purple",
+                        title: "The Living Authority Lens", emoji: "🕊️", color: "purple",
                         body: `
                             <p class="font-bold mb-2">You view Scripture through a <strong>Wide-Angle Lens</strong>.</p>
-                            <p>You don't just look at the page; you look at the community and the Spirit around it. Your lens captures the Bible as part of a larger, living conversation—whether that's ancient Church Tradition or the fresh voice of Prophecy. You see God as still speaking today.</p>
-                            <p class="mt-3 font-semibold">Your Blind Spot: Distortion. With such a wide view, ensure that new experiences or traditions don't blur or contradict the sharp, fixed meaning of the original text.</p>
+                            <p class="mb-3">You don't just look at the page; you look at the community and the Spirit around it. Your lens captures the Bible as part of a larger, living conversation—whether that's ancient Church Tradition or the fresh voice of Prophecy. You see God as still speaking today.</p>
+                            
+                            <div class="bg-white bg-opacity-60 p-4 rounded-lg border border-purple-200 mb-3 text-left">
+                                <p class="text-xs font-bold text-purple-800 uppercase tracking-wide mb-2">Real-World Matches</p>
+                                <div class="matches-scroll text-xs leading-relaxed text-gray-700">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>Catholic:</strong> Patristic, Thomist, Jesuit, Augustinian, Ressourcement, Nouvelle Théologie, Charismatic Renewal.</li>
+                                        <li><strong>Orthodox:</strong> Eastern Orthodox, Oriental Orthodox, Church of the East, Palamite, Neo-Patristic.</li>
+                                        <li><strong>Anglican:</strong> Anglo-Catholic, Patristic High-Church, Via Media.</li>
+                                        <li><strong>Methodist/Wesleyan:</strong> Wesleyan Arminianism, Holiness Movement.</li>
+                                        <li><strong>Pentecostal/Charismatic:</strong> Assemblies of God, Third-Wave, Apostolic Networks, African Initiated Churches.</li>
+                                        <li><strong>Other:</strong> Quakers, Moravians, Latter-day Saints.</li>
+                                    </ul>
+                                </div>
+                            </div>
                         `
                     },
                     modern: {
-                        title: "The Modern Lens", emoji: "🔬", color: "green",
+                        title: "The Modern Context Lens", emoji: "🔬", color: "green",
                         body: `
                             <p class="font-bold mb-2">You view Scripture through a <strong>Bifocal Lens</strong>.</p>
-                            <p>You have a unique ability to look at two things at once. One part of your lens focuses on the ancient human context (admitting they didn't know modern science), while the other part focuses on the eternal spiritual truth. You see the Bible as fully divine but also fully human.</p>
-                            <p class="mt-3 font-semibold">Your Blind Spot: Separation. The challenge with bifocals is keeping the image whole. Be careful not to separate the "human" parts so much that you lose sight of the supernatural power (like the Resurrection).</p>
+                            <p class="mb-3">You have a unique ability to look at two things at once. One part of your lens focuses on the ancient human context (admitting they didn't know modern science), while the other part focuses on the eternal spiritual truth. You see the Bible as fully divine but also fully human.</p>
+                            
+                            <div class="bg-white bg-opacity-60 p-4 rounded-lg border border-green-200 mb-3 text-left">
+                                <p class="text-xs font-bold text-green-800 uppercase tracking-wide mb-2">Real-World Matches</p>
+                                <div class="matches-scroll text-xs leading-relaxed text-gray-700">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>Mainline Protestant:</strong> Liberal wings of Anglicanism, Lutheranism, Methodism.</li>
+                                        <li><strong>Academic:</strong> Neo-Orthodoxy (Barth), Critical Realism, "BioLogos" Evangelicals.</li>
+                                        <li><strong>Contextual Theologies:</strong> Black Liberation, Feminist/Womanist, Postcolonial, Asian Contextual.</li>
+                                        <li><strong>Philosophy:</strong> Process Theology, Emergent/Progressive, Ecumenical Movements.</li>
+                                    </ul>
+                                </div>
+                            </div>
                         `
                     },
                     cultural: {
+                        // Base template
                         title: "The Nominal Lens", emoji: "🕯️", color: "gray",
                         body: "PLACEHOLDER"
                     }
@@ -301,7 +359,7 @@
                     renderQuestion();
                 }
 
-                // --- SCORING LOGIC (Final Logic V16 - Gap Fixes) ---
+                // --- SCORING LOGIC (Final Logic V16) ---
 
                 function calculateResult() {
                     let textScore = 0; 
@@ -326,41 +384,30 @@
                     const q6Yes = isYes(6) ? 1 : 0;
                     const q5Yes = isYes(5) ? 1 : 0;
 
-                    // --- Logic V16 Updates ---
-                    // 1. Calculate Purity Bonus (Q7) Conditionally
                     let purityBonus = 0;
                     if (q7Yes) {
-                        // Fix 1: Must have text rigor (textScore >= 2)
-                        // Fix 2: Must NOT have conflicting authority (authScore == 0)
                         if (textScore >= 2 && authScore === 0) {
                             purityBonus = 7; 
                         } else {
-                            purityBonus = 0; // Void the bonus if contradictory or uneducated
+                            purityBonus = 0; 
                         }
                     }
 
-                    // --- Affinity Calculation ---
-
-                    // Clear Text Affinity
                     let clearAffinity = (3 * textScore) + purityBonus - (3 * authScore) - (2 * q6Yes);
                     if (resurrectionDenied) clearAffinity -= 12;
                     
-                    // Living Affinity
                     let livingAffinity = 0;
                     if (authScore > 0) {
                         livingAffinity = 6 + (3 * authScore) + textScore;
                     }
                     
-                    // Modern Affinity
                     let modernAffinity = (2 * textScore) + (6 * q6Yes) + (2 * q5Yes);
                     if (!q6Yes) modernAffinity -= 4; 
                     if (resurrectionDenied) modernAffinity -= 8;
                     
-                    // Cultural Affinity
                     let culturalAffinity = (2 * (4 - textScore)) + 4;
                     if (resurrectionDenied) culturalAffinity += 8;
 
-                    // V15 Undefined Profile Catch (Still needed)
                     if (textScore >= 3 && !q7Yes && !q6Yes && authScore === 0) {
                         culturalAffinity += 12; 
                     }
@@ -420,16 +467,36 @@
                             data.title = "The Skeptic Lens";
                             data.body = `
                                 <p class="font-bold mb-2">You view Scripture through a <strong>Museum Lens</strong>.</p>
-                                <p>You see the Bible as a fascinating artifact of history or culture, but you observe it from a distance. By rejecting the Resurrection, you are analyzing the text as a human invention rather than a living, authoritative voice.</p>
-                                <p class="mt-3 font-semibold">Your Blind Spot: Detachment. You may understand the history well, but you are missing the transformative power that comes from stepping inside the story and believing it.</p>
+                                <p class="mb-3">You see the Bible as a fascinating artifact of history or culture, but you observe it from a distance. By rejecting the Resurrection, you are analyzing the text as a human invention rather than a living, authoritative voice.</p>
+                                
+                                <div class="bg-white bg-opacity-60 p-4 rounded-lg border border-gray-300 mb-3 text-left">
+                                    <p class="text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Real-World Matches</p>
+                                    <div class="matches-scroll text-xs leading-relaxed text-gray-700">
+                                        <ul class="list-disc pl-4 space-y-1">
+                                            <li><strong>Liberal Theology:</strong> Radical Liberalism, Demythologization.</li>
+                                            <li><strong>Secular:</strong> Christian Atheism, Secular Humanism, Historical-Critical Academic Study.</li>
+                                            <li><strong>Other:</strong> Unitarian Universalism.</li>
+                                        </ul>
+                                    </div>
+                                </div>
                             `;
                         } else {
-                            // 2. THE NOMINAL LENS (Casual/Undefined)
+                            // 4. THE NOMINAL LENS
                             data.title = "The Nominal Lens";
                             data.body = `
                                 <p class="font-bold mb-2">You view Scripture through a <strong>Soft-Focus Lens</strong>.</p>
-                                <p>You see the Bible primarily as a source of comfort or inspiration, but you may not have a clearly defined method for interpreting it. You might score high on reading rules but hesitate to commit to a specific theological framework (like Scripture Alone or Tradition).</p>
-                                <p class="mt-3 font-semibold">Your Blind Spot: Definition. A soft focus feels safe, but it can miss the author's specific point. Consider asking: "What is my final authority?" to bring your reading into sharper focus.</p>
+                                <p class="mb-3">You see the Bible primarily as a source of comfort or inspiration, but you may not have a clearly defined method for interpreting it. You might score high on reading rules but hesitate to commit to a specific theological framework.</p>
+                                
+                                <div class="bg-white bg-opacity-60 p-4 rounded-lg border border-gray-300 mb-3 text-left">
+                                    <p class="text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Real-World Matches</p>
+                                    <div class="matches-scroll text-xs leading-relaxed text-gray-700">
+                                        <ul class="list-disc pl-4 space-y-1">
+                                            <li><strong>Cultural Christianity:</strong> Folk Christianity, Identity-based belief.</li>
+                                            <li><strong>Casual:</strong> "Christmas and Easter" Believers, Seeker-Sensitive.</li>
+                                            <li><strong>Modern Spirituality:</strong> "Spiritual but not Religious", Moralistic Therapeutic Deism.</li>
+                                        </ul>
+                                    </div>
+                                </div>
                             `;
                         }
                     }
