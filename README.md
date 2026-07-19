@@ -1,1 +1,1 @@
-# What-is-your-Bible-Reading-Lens-
+# What-is-your-Reading-Lens-
